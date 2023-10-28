@@ -8,12 +8,17 @@ WIDTH = 1000
 HEIGHT = 500
 fps = 60
 timer = pygame.time.Clock()
-v = 1
-a = 1
+
 
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
 run = True
+
+moving_rect = pygame.Rect(350,350,100,100)
+x_speed, y_speed = 5,4
+
+other_rect = pygame.Rect(300,600,200,100)
+other_speed = 2
 
 #Bezier
 def bezier():
@@ -27,6 +32,13 @@ def bezier():
 
         pygame.draw.circle(screen, (255, 0, 0), z.astype(int), 3)
 
+def oscilate(upper, lower, x, v):
+    if x > upper: 
+        v *= -1
+    if x < lower:
+        v *= -1
+    return x + v
+
 
 while run:
 
@@ -36,29 +48,16 @@ while run:
 
     # Fetch mouse position 
     mouse_pos = pygame.mouse.get_pos()
-    
+    pygame.draw.circle(screen, 'red', mouse_pos, 10)
+
     # Draw grandma
     grandma = (WIDTH/2, HEIGHT)
     pygame.draw.circle(screen, 'gray', grandma , 50)
 
     # Oscilate the target position
     target = (mouse_pos[0], mouse_pos[1])
-    v += a
-    d = 1
-    upper = 20
-    lower = -20
-    
-    # Change velocity if we hit upper or lower bound 
-    if v > upper or v < lower:
-        a *= -1
-
-    # If on right side of screen, oscilate along y=-x line
-    if mouse_pos[0] > WIDTH/2:
-        d = -1
-    
-    target = (mouse_pos[0]+v, mouse_pos[1]+v*d)
-    
-    pygame.draw.circle(screen, 'red', target, 10)
+    var = 15
+    target = (oscilate(target[0]+var, target[0]-var, target[0], 1), oscilate(target[1]+var, target[1]-var, target[1], 1)) # oscilate y
 
     # Draw the beizer curve between two mouse cursor and grandma
     warp = (WIDTH/2, HEIGHT/2)
@@ -70,6 +69,11 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
+    pygame.draw.rect(screen, (255,255,255), moving_rect)
+    pygame.draw.rect(screen, (255,255,255), moving_rect)
+    
     pygame.display.flip()
+
+
 
 pygame.quit()
