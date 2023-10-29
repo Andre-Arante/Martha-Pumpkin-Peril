@@ -2,6 +2,8 @@ import pygame
 import numpy as np
 import math
 
+from enemy import *
+
 pygame.init()
 
 WIDTH = 1000
@@ -11,11 +13,18 @@ timer = pygame.time.Clock()
 v = 1
 a = 1
 
+counter = 0
+
+enemies = []
+spawnRate = 100
+
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
 run = True
 
-#Bezier
+pumpkinSpin = [pygame.]
+
+# Bezier
 def bezier():
     N = len(pts)
     n = N-1
@@ -27,6 +36,7 @@ def bezier():
 
         pygame.draw.circle(screen, (255, 0, 0), z.astype(int), 3)
 
+# Generate enemies
 
 while run:
 
@@ -60,15 +70,32 @@ while run:
     
     pygame.draw.circle(screen, 'red', target, 10)
 
+
+
     # Draw the beizer curve between two mouse cursor and grandma
     warp = (WIDTH/2, HEIGHT/2)
     pts = [grandma, warp, target]
     bezier()
 
+
+    # Spawn enemies at a random position at the top
+    
+    if(counter % spawnRate == 0):
+        new = Enemy(screen) 
+        enemies.append(new)
+
+    for e in enemies:
+        e.move()
+        e.draw()
+
+
+
     # Allow for the user to quit out of game
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+
+    counter += 1
 
     pygame.display.flip()
 
