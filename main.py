@@ -6,15 +6,20 @@ from enemy import *
 
 pygame.init()
 
+# Initial Setup Variables
 WIDTH = 1000
 HEIGHT = 500
 fps = 60
 timer = pygame.time.Clock()
+
+# Velociaty and acceleration for the oscilation of the target
 v = 1
 a = 1
 
+# Tracks number of frames since program initialization
 counter = 0
 
+# Stores enemy data
 enemies = []
 spawnRate = 100
 
@@ -22,7 +27,8 @@ screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
 run = True
 
-pumpkinSpin = [pygame.]
+pumpkinSpin = pygame.image.load('./images/pumpkin.png')
+screen.blit(pumpkinSpin, (0, 0))
 
 # Bezier
 def bezier():
@@ -46,7 +52,7 @@ while run:
 
     # Fetch mouse position 
     mouse_pos = pygame.mouse.get_pos()
-    
+    screen.blit(pumpkinSpin, mouse_pos)
     # Draw grandma
     grandma = (WIDTH/2, HEIGHT)
     pygame.draw.circle(screen, 'gray', grandma , 50)
