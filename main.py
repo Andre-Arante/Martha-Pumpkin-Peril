@@ -1,108 +1,111 @@
+# https://github.com/Andre-Arante/Martha-s-Pumpkin  
+
 import pygame
-import numpy as np
-import math
+
 
 from enemy import *
+from util import beizer
 
 pygame.init()
 
-# Initial Setup Variables
-WIDTH = 1000
-HEIGHT = 500
-fps = 60
-timer = pygame.time.Clock()
 
-# Velociaty and acceleration for the oscilation of the target
-v = 1
-a = 1
+# Main Gameplay Screen
+def gameplay():
 
-# Tracks number of frames since program initialization
-counter = 0
+    # Initial Setup Variables
+    WIDTH = 1000
+    HEIGHT = 500
+    fps = 60
+    timer = pygame.time.Clock()
+    health = 10
 
-# Stores enemy data
-enemies = []
-spawnRate = 100
+    # Velociaty and acceleration for the oscilation of the target
+    v = 1
+    a = 1
 
-screen = pygame.display.set_mode([WIDTH, HEIGHT])
+    # Tracks number of frames since program initialization
+    counter = 0
 
-run = True
+    # Stores enemy data
+    enemies = []
+    spawnRate = 100
 
-pumpkinSpin = pygame.image.load('./images/pumpkin.png')
-screen.blit(pumpkinSpin, (0, 0))
+    screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
-# Bezier
-def bezier():
-    N = len(pts)
-    n = N-1
-    for t in np.arange(0, 1, 0.01):
-        z = np.zeros(2)
-        for i in range(N):
-            z += np.dot((math.factorial(n)/(math.factorial(i)*math.factorial(n-i)))
-                        *((1-t)**(n-i))*(t**i),pts[i])
+    run = True
 
-        pygame.draw.circle(screen, (255, 0, 0), z.astype(int), 3)
+    pumpkinSpin = [pygame.image.load('./assets/pumpkin.png')]
+    screen.blit(pumpkinSpin, (0, 0))
 
-# Generate enemies
+    while run:
 
-while run:
+        # Background
+        screen.fill('white')
+        timer.tick(fps) # While loop repeats 60 times per second
 
-    # Background
-    screen.fill('white')
-    timer.tick(fps) # While loop repeats 60 times per second
+        # Fetch mouse position 
+        mouse_pos = pygame.mouse.get_pos()
+        screen.blit(pumpkinSpin, mouse_pos)
+        # Draw grandma
+        grandma = (WIDTH/2, HEIGHT)
+        pygame.draw.circle(screen, 'gray', grandma , 50)
 
-    # Fetch mouse position 
-    mouse_pos = pygame.mouse.get_pos()
-    screen.blit(pumpkinSpin, mouse_pos)
-    # Draw grandma
-    grandma = (WIDTH/2, HEIGHT)
-    pygame.draw.circle(screen, 'gray', grandma , 50)
+        # Oscilate the target position
+        target = (mouse_pos[0], mouse_pos[1])
+        v += a
+        d = 1
+        upper = 20
+        lower = -20
+        
+        # Change velocity if we hit upper or lower bound 
+        if v > upper or v < lower:
+            a *= -1
 
-    # Oscilate the target position
-    target = (mouse_pos[0], mouse_pos[1])
-    v += a
-    d = 1
-    upper = 20
-    lower = -20
-    
-    # Change velocity if we hit upper or lower bound 
-    if v > upper or v < lower:
-        a *= -1
-
-    # If on right side of screen, oscilate along y=-x line
-    if mouse_pos[0] > WIDTH/2:
-        d = -1
-    
-    target = (mouse_pos[0]+v, mouse_pos[1]+v*d)
-    
-    pygame.draw.circle(screen, 'red', target, 10)
+        # If on right side of screen, oscilate along y=-x line
+        if mouse_pos[0] > WIDTH/2:
+            d = -1
+        
+        target = (mouse_pos[0]+v, mouse_pos[1]+v*d)
+        
+        pygame.draw.circle(screen, 'red', target, 10)
 
 
 
-    # Draw the beizer curve between two mouse cursor and grandma
-    warp = (WIDTH/2, HEIGHT/2)
-    pts = [grandma, warp, target]
-    bezier()
+        # Draw the beizer curve between two mouse cursor and grandma
+        warp = (WIDTH/2, HEIGHT/2)
+        pts = [grandma, warp, target]
+        bezier(pts, screen)
 
 
-    # Spawn enemies at a random position at the top
-    
-    if(counter % spawnRate == 0):
-        new = Enemy(screen) 
-        enemies.append(new)
+        # Spawn enemies at a random position at the top
+        
+        if(counter % spawnRate == 0):
+            new = Enemy(screen) 
+            enemies.append(new)
 
-    for e in enemies:
-        e.move()
-        e.draw()
+        for e in enemies:
+            e.move()
+            e.draw()
+
+            # Check if enemy has passed 
+
+            health = e.update_health(HEIGHT, health)
+            if health <= 0:
+                pass
+                # Display game screen
+
+        print(health)
 
 
+        # Allow for the user to quit out of game
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
 
-    # Allow for the user to quit out of game
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
+        counter += 1
 
-    counter += 1
+        pygame.display.flip()
 
-    pygame.display.flip()
+    pygame.quit()
 
-pygame.quit()
+gameplay()
