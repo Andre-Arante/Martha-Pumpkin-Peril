@@ -20,7 +20,8 @@ class Enemy:
 
     def update_health(self, height, health):
         if self.y > height and not self.destroy: 
-            self.destory = not self.destroy
+            self.destory = True
+            print(health - damage)
             return health - damage
         return health
 
